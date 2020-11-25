@@ -25,19 +25,21 @@ class Minesweeper:
 
         self.boom = False
 
-    def iter_neighbours(self, x, y):
+    def iter_neighbours(self, tile):
+        (x, y) = (tile.x, tile.y)
         for dx, dy in [(x-1,y-1), (x,y-1), (x+1,y-1),
                        (x-1,y),            (x+1,y),
                        (x-1,y+1), (x,y+1), (x+1,y+1)]:
-            if (dx, dy) in self.tiles:
-                yield (dx, dy)
+            try:
+                yield self.tiles[(dx, dy)]
+            except KeyError:
+                pass
 
     def _place_bombs(self):
-        for (x, y) in random.sample(list(self.tiles), self.num_bombs):
-            tile = self.tiles[(x, y)]
+        for tile in random.sample(list(self.tiles.values()), self.num_bombs):
             tile.is_bomb = True
-            for (dx, dy) in self.iter_neighbours(x, y):
-                self.tiles[(dx, dy)].count += 1
+            for neighbour in self.iter_neighbours(tile):
+                neighbour.count += 1
 
     def _uncover(self, tile):
         if not tile.covered or tile.is_bomb:
@@ -47,8 +49,8 @@ class Minesweeper:
         self.show_func(tile.x, tile.y)
 
         if tile.count == 0:
-            for (dx, dy) in self.iter_neighbours(tile.x, tile.y):
-                self._uncover(self.tiles[(dx, dy)])
+            for neighbour in self.iter_neighbours(tile):
+                self._uncover(neighbour)
 
     def step(self, x, y):
         tile = self.tiles[(x, y)]
