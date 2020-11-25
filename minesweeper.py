@@ -1,6 +1,5 @@
-from rand import choice
-from Tkinter import *
-import string
+from random import choice
+from tkinter import *
 
 
 tile_size = 20
@@ -36,7 +35,7 @@ class Minesweeper:
         coords = []
         for i in range(self.size**2):
             y, x = divmod(i, self.size)
-            coords.append(x, y)
+            coords.append((x, y))
         return coords
 
     def place_bombs(self):
@@ -77,7 +76,7 @@ class Minesweeper:
                       (x-1,y+1), (x,y+1), (x+1,y+1)]
 
         for x, y in neighbours:
-            if self.hidden.has_key((x, y)):
+            if (x, y) in self.hidden:
                 if self.board.get(x, y) != 'bomb':
                     self.show(x, y)
             
@@ -88,7 +87,7 @@ class Minesweeper:
             self.boom = 1
             self.hidden = {}
             self.boom_func()
-        elif self.hidden.has_key((x, y)):
+        elif (x, y) in self.hidden:
             self.show(x, y)
             self.unknown = len(self.hidden) - self.nbombs
 
@@ -161,7 +160,7 @@ class GUI:
     def step(self, event):
         x, y = self.canvas_xy(event)
 
-        if not self.flags.has_key((x, y)):
+        if (x, y) not in self.flags:
             self.game.step(x, y)
 
     def toggle_flag(self, event):
@@ -172,7 +171,7 @@ class GUI:
             del self.flags[x, y]
             self.canvas.delete(flag)
         except KeyError:
-            if self.tiles.has_key((x, y)):
+            if (x, y) in self.tiles:
                 sz = self.tile_size
                 rect = self.canvas.create_rectangle
                 flag = rect((x+0.2)*sz, (y+0.1)*sz,
@@ -193,10 +192,10 @@ class GUI:
                                             (x+0.8)*sz, (y+0.8)*sz,
                                             fill='black',
                                             tag='board')
-                elif c != None:
+                elif c is not None:
                     self.canvas.create_text((x+0.5)*sz,
                                             (y+0.5)*sz,
-                                            text=`c`,
+                                            text=repr(c),
                                             anchor='center',
                                             tag='board')
 
