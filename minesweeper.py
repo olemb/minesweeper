@@ -83,6 +83,7 @@ class Minesweeper:
 
     def step(self, x, y):
         c = self.board.get((x, y))
+
         if c == 'bomb':
             self.boom = 1
             self.hidden = {}
@@ -155,7 +156,7 @@ class GUI:
 
     def canvas_xy(self, event):
         sz = self.tile_size
-        return event.x/sz, event.y/sz
+        return (event.x // sz, event.y // sz)
 
     def step(self, event):
         x, y = self.canvas_xy(event)
