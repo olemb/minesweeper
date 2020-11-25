@@ -2,9 +2,6 @@ from random import choice
 from tkinter import *
 
 
-tile_size = 20
-
-
 class Minesweeper:
     def __init__(self, size, nbombs,
                  show_func=lambda x, y: None,
@@ -96,7 +93,7 @@ class Minesweeper:
 
 
 class GUI:
-    def __init__(self):
+    def __init__(self, tile_size=40):
         self.tile_size = tile_size
         self.tiles = {}
 
