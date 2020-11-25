@@ -7,7 +7,7 @@ from tkinter import *
 class Tile:
     x: int
     y: int
-    covered: bool = True
+    is_covered: bool = True
     is_bomb: bool = False
     count: int = 0
 
@@ -42,10 +42,10 @@ class Minesweeper:
                 neighbour.count += 1
 
     def _uncover(self, tile):
-        if not tile.covered or tile.is_bomb:
+        if not tile.is_covered or tile.is_bomb:
             return
 
-        tile.covered = False
+        tile.is_covered = False
         self.show_func(tile.x, tile.y)
 
         if tile.count == 0:
