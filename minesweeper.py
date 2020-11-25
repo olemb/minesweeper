@@ -1,95 +1,67 @@
-from random import choice
+import random
+from dataclasses import dataclass
 from tkinter import *
 
 
+@dataclass
+class Tile:
+    x: int
+    y: int
+    covered: bool = True
+    is_bomb: bool = False
+    count: int = 0
+
+
 class Minesweeper:
-    def __init__(self, size, nbombs,
-                 show_func=lambda x, y: None,
-                 boom_func=lambda: None):
+    def __init__(self, size, num_bombs, show_func, boom_func):
         self.size = size
-        self.nbombs = nbombs
+        self.num_bombs = num_bombs
 
-        self.board = {}
-        self.hidden = {}
-
-        self.hide_all()
-        self.place_bombs()
-
-        self.unknown = (size**2) - nbombs
+        self.tiles = {(x, y): Tile(x, y) for x in range(self.size) for y in range(self.size)}
+        self._place_bombs()
 
         self.show_func = show_func
         self.boom_func = boom_func
 
-        self.boom = 0
+        self.boom = False
 
-    def hide_all(self):
-        hidden = self.hidden
-        for x, y in self.all_coords():
-            hidden[x, y] = 1        
+    def iter_neighbours(self, x, y):
+        for dx, dy in [(x-1,y-1), (x,y-1), (x+1,y-1),
+                       (x-1,y),            (x+1,y),
+                       (x-1,y+1), (x,y+1), (x+1,y+1)]:
+            if (dx, dy) in self.tiles:
+                yield (dx, dy)
 
-    def all_coords(self):
-        """Return the coordinates of all squares as a list."""
-        coords = []
-        for i in range(self.size**2):
-            y, x = divmod(i, self.size)
-            coords.append((x, y))
-        return coords
+    def _place_bombs(self):
+        for (x, y) in random.sample(list(self.tiles), self.num_bombs):
+            tile = self.tiles[(x, y)]
+            tile.is_bomb = True
+            for (dx, dy) in self.iter_neighbours(x, y):
+                self.tiles[(dx, dy)].count += 1
 
-    def place_bombs(self):
-        squares = self.all_coords()
-        board = self.board
-
-        neighbours = [(-1,-1), (0,-1), (1,-1),
-                      (-1,0), (0,0), (1,0),
-                      (-1,1), (0,1), (1,1)]
-
-        bombs = self.bombs = []                    # Place bombs
-        for i in range(self.nbombs):
-            square = choice(squares)
-            squares.remove(square)
-            bombs.append(square)
-
-            x, y = square
-            for dx, dy in neighbours:
-                key = (x+dx, y+dy)
-                try:
-                    count = board[key]
-                except KeyError:
-                    count = 0
-                board[key] = count + 1
-
-        for key in bombs:
-            board[key] = 'bomb'
-
-    def show(self, x, y):
-        del self.hidden[x, y]
-        self.show_func(x, y)
-
-        if self.board.get((x, y)) != None:
+    def _uncover(self, tile):
+        if not tile.covered or tile.is_bomb:
             return
 
-        neighbours = [(x-1,y-1), (x,y-1), (x+1,y-1),
-                      (x-1,y), (x,y), (x+1,y),
-                      (x-1,y+1), (x,y+1), (x+1,y+1)]
+        tile.covered = False
+        self.show_func(tile.x, tile.y)
 
-        for x, y in neighbours:
-            if (x, y) in self.hidden:
-                if self.board.get(x, y) != 'bomb':
-                    self.show(x, y)
-            
+        if tile.count == 0:
+            for (dx, dy) in self.iter_neighbours(tile.x, tile.y):
+                self._uncover(self.tiles[(dx, dy)])
 
     def step(self, x, y):
-        c = self.board.get((x, y))
+        tile = self.tiles[(x, y)]
 
-        if c == 'bomb':
-            self.boom = 1
-            self.hidden = {}
+        self._uncover(tile)
+        if tile.is_bomb:
+            self.boom = True
             self.boom_func()
-        elif (x, y) in self.hidden:
-            self.show(x, y)
-            self.unknown = len(self.hidden) - self.nbombs
-
-
+  
+    def toggle_flag(self, x, y):
+        tile = self.tiles[(x, y)]
+        tile.flagged = not tile.flagged
+        return tile.flagged
 
 
 class GUI:
@@ -145,28 +117,27 @@ class GUI:
         self.create_board()
 
         rect = self.canvas.create_rectangle
-        for x, y in self.game.all_coords():
+        for (x, y) in self.game.tiles:
             tile = rect(x*sz, y*sz, (x+1)*sz, (y+1)*sz,
-                        fill='blue', tag='tiles')
+                        fill='gray60', tag='tiles')
 
-            self.tiles[x, y] = tile
+            self.tiles[(x, y)] = tile
 
-    def canvas_xy(self, event):
-        sz = self.tile_size
-        return (event.x // sz, event.y // sz)
+    def tile_xy(self, event):
+        return (event.x // self.tile_size, event.y // self.tile_size)
 
     def step(self, event):
-        x, y = self.canvas_xy(event)
+        x, y = self.tile_xy(event)
 
         if (x, y) not in self.flags:
             self.game.step(x, y)
 
     def toggle_flag(self, event):
-        x, y = self.canvas_xy(event)
+        x, y = self.tile_xy(event)
 
         try:
-            flag = self.flags[x, y]
-            del self.flags[x, y]
+            flag = self.flags[(x, y)]
+            del self.flags[(x, y)]
             self.canvas.delete(flag)
         except KeyError:
             if (x, y) in self.tiles:
@@ -184,16 +155,17 @@ class GUI:
         for y in range(self.size):
             for x in range(self.size):
 
-                c = self.game.board.get((x, y))
-                if c == 'bomb':
+                tile = self.game.tiles[(x, y)]
+
+                if tile.is_bomb:
                     self.canvas.create_oval((x+0.2)*sz, (y+0.2)*sz,
                                             (x+0.8)*sz, (y+0.8)*sz,
                                             fill='black',
                                             tag='board')
-                elif c is not None:
+                elif tile.count > 0:
                     self.canvas.create_text((x+0.5)*sz,
                                             (y+0.5)*sz,
-                                            text=repr(c),
+                                            text=repr(tile.count),
                                             anchor='center',
                                             tag='board')
 
