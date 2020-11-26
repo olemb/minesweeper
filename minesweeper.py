@@ -90,7 +90,7 @@ class GUI:
         button = Button(self.tk, text='Quit', command=self.tk.quit)
         button.pack(side=BOTTOM, fill=X)
 
-        new_game = lambda event: self.new_game(self.size, self.num_bombs)
+        new_game = lambda event=None: self.new_game(self.size, self.num_bombs)
         button = Button(self.tk, text='New game', command=new_game)
         button.pack(side=BOTTOM, fill=X)
 
