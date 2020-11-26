@@ -73,8 +73,6 @@ class GUI:
 
         self.tk = Tk()
         
-        new_game = lambda e=None, s=self: s.new_game(s.size, s.nbombs)
-
         frame = Frame(self.tk,
                       borderwidth=2,
                       relief=RAISED)
@@ -92,6 +90,7 @@ class GUI:
         button = Button(self.tk, text='Quit', command=self.tk.quit)
         button.pack(side=BOTTOM, fill=X)
 
+        new_game = lambda event: self.new_game(self.size, self.num_bombs)
         button = Button(self.tk, text='New game', command=new_game)
         button.pack(side=BOTTOM, fill=X)
 
@@ -99,12 +98,12 @@ class GUI:
 
         self.new_game(10, 10)
 
-    def new_game(self, size, nbombs):
+    def new_game(self, size, num_bombs):
         self.tiles = {}
         self.flags = {}
 
         self.size = size
-        self.nbombs = nbombs
+        self.num_bombs = num_bombs
 
         self.canvas.delete('tiles')
         self.canvas.delete('board')
@@ -112,7 +111,7 @@ class GUI:
         sz = self.tile_size
 
         self.canvas.config(width=size*sz, height=size*sz)
-        self.game = Minesweeper(self.size, self.nbombs,
+        self.game = Minesweeper(self.size, self.num_bombs,
                                 show_func=self.remove_tile,
                                 boom_func=self.boom)
 
@@ -154,22 +153,18 @@ class GUI:
     def create_board(self):
         sz = self.tile_size
 
-        for y in range(self.size):
-            for x in range(self.size):
-
-                tile = self.game.tiles[(x, y)]
-
-                if tile.is_bomb:
-                    self.canvas.create_oval((x+0.2)*sz, (y+0.2)*sz,
-                                            (x+0.8)*sz, (y+0.8)*sz,
-                                            fill='black',
-                                            tag='board')
-                elif tile.count > 0:
-                    self.canvas.create_text((x+0.5)*sz,
-                                            (y+0.5)*sz,
-                                            text=repr(tile.count),
-                                            anchor='center',
-                                            tag='board')
+        for (x, y), tile in self.game.tiles.items():
+            if tile.is_bomb:
+                self.canvas.create_oval((x+0.2)*sz, (y+0.2)*sz,
+                                        (x+0.8)*sz, (y+0.8)*sz,
+                                        fill='black',
+                                        tag='board')
+            elif tile.count > 0:
+                self.canvas.create_text((x+0.5)*sz,
+                                        (y+0.5)*sz,
+                                        text=repr(tile.count),
+                                        anchor='center',
+                                        tag='board')
 
     def boom(self):
         self.canvas.itemconfigure('tiles', stipple='gray25')
