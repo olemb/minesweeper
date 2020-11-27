@@ -23,13 +23,11 @@ class Minesweeper:
 
     def _iter_neighbours(self, tile):
         (x, y) = (tile.x, tile.y)
-        for dx, dy in [(x-1,y-1), (x,y-1), (x+1,y-1),
-                       (x-1,y),            (x+1,y),
-                       (x-1,y+1), (x,y+1), (x+1,y+1)]:
-            try:
-                yield self.tiles[(dx, dy)]
-            except KeyError:
-                pass
+        return (self.tiles[(dx, dy)]
+                for (dx, dy) in [(x-1,y-1), (x,y-1), (x+1,y-1),
+                                 (x-1,y),            (x+1,y),
+                                 (x-1,y+1), (x,y+1), (x+1,y+1)]
+                if (dx, dy) in self.tiles)
 
     def _place_bombs(self):
         for tile in random.sample(list(self.tiles.values()), self.num_bombs):
