@@ -17,7 +17,8 @@ class Minesweeper:
         self.size = size
         self.num_bombs = num_bombs
 
-        self.tiles = {(x, y): Tile(x, y) for x in range(self.size) for y in range(self.size)}
+        self.tiles = {(x, y): Tile(x, y)
+                      for x in range(self.size) for y in range(self.size)}
         self._place_bombs()
 
     def _iter_neighbours(self, tile):
