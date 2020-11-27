@@ -59,11 +59,6 @@ class Minesweeper:
         if tile.is_bomb:
             self.boom = True
             self.boom_func()
-  
-    def toggle_flag(self, x, y):
-        tile = self.tiles[(x, y)]
-        tile.flagged = not tile.flagged
-        return tile.flagged
 
 
 class GUI:
