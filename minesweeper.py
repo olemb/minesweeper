@@ -114,7 +114,6 @@ class GUI:
         x, y = self.tile_xy(event)
 
         if (x, y) not in self.flags:
-            result = self.game.step(x, y)
             for tile in self.game.step(x, y):
                 self.canvas.delete(self.covers.pop((tile.x, tile.y)))
 
