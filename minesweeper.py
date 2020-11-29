@@ -121,7 +121,7 @@ class GUI:
             elif tile.count > 0:
                 self.canvas.create_text((x + 0.5) * sz, (y + 0.5) * sz,
                                         anchor='center',
-                                        text=repr(tile.count),
+                                        text=tile.count,
                                         tag='board')
 
             if tile.is_covered:
