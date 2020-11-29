@@ -116,18 +116,7 @@ class GUI:
         self.canvas.delete('all')
 
         for (x, y), tile in self.game.tiles.items():
-            if tile.is_covered:
-                self.canvas.create_rectangle(
-                    x*sz, y*sz, (x+1)*sz, (y+1)*sz,
-                    fill='gray60', tag='covers')
-
-                if tile.is_flagged:
-                    self.canvas.create_rectangle(
-                        (x + 0.2) * sz, (y + 0.1) * sz,
-                        (x + 0.8) * sz, (y + 0.5) * sz,
-                        tag='board',
-                        fill='white')
-            elif tile.is_mine:
+            if tile.is_mine:
                 self.canvas.create_oval((x + 0.2) * sz, (y + 0.2) * sz,
                                         (x + 0.8) * sz, (y + 0.8) * sz,
                                         fill='black',
@@ -138,6 +127,18 @@ class GUI:
                                         text=repr(tile.count),
                                         anchor='center',
                                         tag='board')
+
+            if tile.is_covered:
+                self.canvas.create_rectangle(
+                    x*sz, y*sz, (x+1)*sz, (y+1)*sz,
+                    fill='gray60', tag='covers')
+
+            if tile.is_flagged:
+                self.canvas.create_rectangle(
+                    (x + 0.2) * sz, (y + 0.1) * sz,
+                    (x + 0.8) * sz, (y + 0.5) * sz,
+                    tag='board',
+                    fill='white')
 
         if self.game.over:
             self.canvas.itemconfigure('covers', stipple='gray25')
