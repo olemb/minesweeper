@@ -24,9 +24,9 @@ class Minesweeper:
     def _iter_neighbours(self, tile):
         (x, y) = (tile.x, tile.y)
         return (self.tiles[(dx, dy)]
-                for (dx, dy) in [(x-1,y-1), (x,y-1), (x+1,y-1),
-                                 (x-1,y),            (x+1,y),
-                                 (x-1,y+1), (x,y+1), (x+1,y+1)]
+                for (dx, dy) in [(x-1, y-1), (x, y-1), (x+1, y-1),
+                                 (x-1, y),             (x+1, y),
+                                 (x-1, y+1), (x, y+1), (x+1, y+1)]
                 if (dx, dy) in self.tiles)
 
     def _place_mines(self):
@@ -54,10 +54,8 @@ class GUI:
         self.tiles = {}
 
         self.tk = Tk()
-        
-        frame = Frame(self.tk,
-                      borderwidth=2,
-                      relief=RAISED)
+
+        frame = Frame(self.tk, borderwidth=2, relief=RAISED)
         frame.pack(side=LEFT)
 
         self.canvas = Canvas(frame)
@@ -72,28 +70,27 @@ class GUI:
         button = Button(self.tk, text='Quit', command=self.tk.quit)
         button.pack(side=BOTTOM, fill=X)
 
-        new_game = lambda event=None: self.new_game(self.size, self.num_mines)
-        button = Button(self.tk, text='New game', command=new_game)
+        button = Button(self.tk, text='New Game', command=self.new_game)
         button.pack(side=BOTTOM, fill=X)
 
-        self.tk.bind('<KeyPress-space>', new_game)
+        self.tk.bind('<KeyPress-space>', self.new_game)
 
-        self.new_game(10, 10)
+        self.size = 10
+        self.num_mines = 10
 
-    def new_game(self, size, num_mines):
+        self.new_game()
+
+    def new_game(self, event=None):
+        self.game = Minesweeper(self.size, self.num_mines)
         self.covers = {}
         self.flags = {}
-
-        self.size = size
-        self.num_mines = num_mines
 
         self.canvas.delete('covers')
         self.canvas.delete('board')
 
         sz = self.tile_size
 
-        self.canvas.config(width=size*sz, height=size*sz)
-        self.game = Minesweeper(self.size, self.num_mines)
+        self.canvas.config(width=self.size*sz, height=self.size*sz)
 
         self.create_board()
 
@@ -127,8 +124,8 @@ class GUI:
             if self.game.tiles[(x, y)].is_covered:
                 sz = self.tile_size
                 rect = self.canvas.create_rectangle
-                self.flags[x, y] = rect((x+0.2)*sz, (y+0.1)*sz,
-                                        (x+0.8)*sz, (y+0.5)*sz,
+                self.flags[x, y] = rect((x + 0.2) * sz, (y + 0.1) * sz,
+                                        (x + 0.8) * sz, (y + 0.5) * sz,
                                         tag='board',
                                         fill='white')
 
@@ -137,13 +134,13 @@ class GUI:
 
         for (x, y), tile in self.game.tiles.items():
             if tile.is_mine:
-                self.canvas.create_oval((x+0.2)*sz, (y+0.2)*sz,
-                                        (x+0.8)*sz, (y+0.8)*sz,
+                self.canvas.create_oval((x + 0.2) * sz, (y + 0.2) * sz,
+                                        (x + 0.8) * sz, (y + 0.8) * sz,
                                         fill='black',
                                         tag='board')
             elif tile.count > 0:
-                self.canvas.create_text((x+0.5)*sz,
-                                        (y+0.5)*sz,
+                self.canvas.create_text((x + 0.5) * sz,
+                                        (y + 0.5) * sz,
                                         text=repr(tile.count),
                                         anchor='center',
                                         tag='board')
