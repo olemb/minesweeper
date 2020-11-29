@@ -47,10 +47,10 @@ class Minesweeper:
 
     def step(self, tile):
         if not self.over and not tile.is_flagged:
+            self._uncover(tile)
+
             if tile.is_mine:
                 self.over = True
-
-            self._uncover(tile)
 
     def toggle_flag(self, tile):
         if not self.over:
