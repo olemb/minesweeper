@@ -7,8 +7,8 @@ from tkinter import *
 class Tile:
     x: int
     y: int
-    is_covered: bool = True
     is_mine: bool = False
+    is_covered: bool = True
     is_flagged: bool = False
     count: int = 0
 
@@ -52,8 +52,7 @@ class Minesweeper:
         if not tile.is_flagged:
             return list(self._uncover(tile))
         else:
-            return []
-                
+            return []                
 
     def toggle_flag(self, tile):
         if tile.is_flagged:
