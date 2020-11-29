@@ -119,21 +119,20 @@ class GUI:
                                         (x + 0.8) * sz, (y + 0.8) * sz,
                                         fill='black', tag='board')
             elif tile.count > 0:
-                self.canvas.create_text((x + 0.5) * sz,
-                                        (y + 0.5) * sz,
+                self.canvas.create_text((x + 0.5) * sz, (y + 0.5) * sz,
                                         anchor='center',
                                         text=repr(tile.count),
                                         tag='board')
 
             if tile.is_covered:
-                self.canvas.create_rectangle(x*sz, y*sz, (x+1)*sz, (y+1)*sz,
+                self.canvas.create_rectangle(x * sz, y * sz,
+                                             (x + 1) * sz, (y + 1) * sz,
                                              fill='gray60', tag='covers')
 
             if tile.is_flagged:
-                self.canvas.create_rectangle(
-                    (x + 0.2) * sz, (y + 0.1) * sz,
-                    (x + 0.8) * sz, (y + 0.5) * sz,
-                    fill='white', tag='board')
+                self.canvas.create_rectangle((x + 0.2) * sz, (y + 0.1) * sz,
+                                             (x + 0.8) * sz, (y + 0.5) * sz,
+                                             fill='white', tag='board')
 
         if self.game.over:
             self.canvas.itemconfigure('covers', stipple='gray25')
