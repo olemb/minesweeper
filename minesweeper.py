@@ -93,13 +93,13 @@ class GUI:
 
         self.new_game()
 
-    def new_game(self, event=None):
-        self.game = Minesweeper(self.size, self.num_mines)
-        self.update_display()
-
     def get_event_tile(self, event):
         (x, y) = (event.x // self.tile_size, event.y // self.tile_size)
         return self.game.tiles[(x, y)]
+
+    def new_game(self, event=None):
+        self.game = Minesweeper(self.size, self.num_mines)
+        self.update_display()
 
     def step(self, event):
         self.game.step(self.get_event_tile(event))
@@ -118,26 +118,23 @@ class GUI:
             if tile.is_mine:
                 self.canvas.create_oval((x + 0.2) * sz, (y + 0.2) * sz,
                                         (x + 0.8) * sz, (y + 0.8) * sz,
-                                        fill='black',
-                                        tag='board')
+                                        fill='black', tag='board')
             elif tile.count > 0:
                 self.canvas.create_text((x + 0.5) * sz,
                                         (y + 0.5) * sz,
-                                        text=repr(tile.count),
                                         anchor='center',
+                                        text=repr(tile.count),
                                         tag='board')
 
             if tile.is_covered:
-                self.canvas.create_rectangle(
-                    x*sz, y*sz, (x+1)*sz, (y+1)*sz,
-                    fill='gray60', tag='covers')
+                self.canvas.create_rectangle(x*sz, y*sz, (x+1)*sz, (y+1)*sz,
+                                             fill='gray60', tag='covers')
 
             if tile.is_flagged:
                 self.canvas.create_rectangle(
                     (x + 0.2) * sz, (y + 0.1) * sz,
                     (x + 0.8) * sz, (y + 0.5) * sz,
-                    tag='board',
-                    fill='white')
+                    fill='white', tag='board')
 
         if self.game.over:
             self.canvas.itemconfigure('covers', stipple='gray25')
