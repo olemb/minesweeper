@@ -1,6 +1,6 @@
 import random
 from dataclasses import dataclass
-from tkinter import Tk, Frame, Button, Canvas, RAISED, LEFT, BOTTOM, X
+from tkinter import Tk, Frame, Button, Canvas, RAISED, LEFT, BOTTOM, X, Y
 
 
 @dataclass
@@ -77,12 +77,12 @@ class GUI:
         self.canvas.bind('<Button-3>', self.toggle_flag)
 
         frame = Frame(self.tk)
-        frame.pack(side=LEFT)
+        frame.pack(side=LEFT, fill=Y)
 
-        button = Button(self.tk, text='Quit', command=self.tk.quit)
+        button = Button(frame, text='Quit', command=self.tk.quit)
         button.pack(side=BOTTOM, fill=X)
 
-        button = Button(self.tk, text='New Game', command=self.new_game)
+        button = Button(frame, text='New Game', command=self.new_game)
         button.pack(side=BOTTOM, fill=X)
 
         self.tk.bind('<KeyPress-space>', self.new_game)
