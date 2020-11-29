@@ -92,7 +92,7 @@ class GUI:
 
         self.new_game()
 
-    def get_event_tile(self, event):
+    def get_clicked_tile(self, event):
         (x, y) = (event.x // self.tile_size, event.y // self.tile_size)
         return self.game.tiles[(x, y)]
 
@@ -101,11 +101,11 @@ class GUI:
         self.update_display()
 
     def step(self, event):
-        self.game.step(self.get_event_tile(event))
+        self.game.step(self.get_clicked_tile(event))
         self.update_display()
 
     def toggle_flag(self, event):
-        self.game.toggle_flag(self.get_event_tile(event))
+        self.game.toggle_flag(self.get_clicked_tile(event))
         self.update_display()
 
     def update_display(self):
