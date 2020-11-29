@@ -142,5 +142,6 @@ class GUI:
         self.tk.mainloop()
 
 
-gui = GUI()
-gui.mainloop()
+if __name__ == '__main__':
+    gui = GUI()
+    gui.mainloop()
