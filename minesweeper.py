@@ -9,6 +9,7 @@ class Tile:
     y: int
     is_covered: bool = True
     is_mine: bool = False
+    is_flagged: bool = False
     count: int = 0
 
 
@@ -16,6 +17,7 @@ class Minesweeper:
     def __init__(self, size, num_mines):
         self.size = size
         self.num_mines = num_mines
+        self.over = False
 
         self.tiles = {(x, y): Tile(x, y)
                       for x in range(self.size) for y in range(self.size)}
@@ -38,14 +40,26 @@ class Minesweeper:
     def _uncover(self, tile):
         if tile.is_covered:
             tile.is_covered = False
+            if tile.is_mine:
+                self.over = True
             yield tile
 
             if tile.count == 0:
                 for neighbour in self._iter_neighbours(tile):
                     yield from self._uncover(neighbour)
 
-    def step(self, x, y):
-        yield from self._uncover(self.tiles[(x, y)])
+    def step(self, tile):
+        if not tile.is_flagged:
+            return list(self._uncover(tile))
+        else:
+            return []
+                
+
+    def toggle_flag(self, tile):
+        if tile.is_flagged:
+            tile.is_flagged = False
+        elif tile.is_covered:
+            tile.is_flagged = True
 
 
 class GUI:
@@ -82,58 +96,38 @@ class GUI:
 
     def new_game(self, event=None):
         self.game = Minesweeper(self.size, self.num_mines)
-        self.covers = {}
-        self.flags = {}
+        self.update_display()
 
-        self.canvas.delete('covers')
-        self.canvas.delete('board')
-
-        sz = self.tile_size
-
-        self.canvas.config(width=self.size*sz, height=self.size*sz)
-
-        self.create_board()
-
-        rect = self.canvas.create_rectangle
-        for (x, y) in self.game.tiles:
-            cover = rect(x*sz, y*sz, (x+1)*sz, (y+1)*sz,
-                         fill='gray60', tag='covers')
-            
-            self.covers[(x, y)] = cover
-
-    def tile_xy(self, event):
-        return (event.x // self.tile_size, event.y // self.tile_size)
+    def get_event_tile(self, event):
+        (x, y) = (event.x // self.tile_size, event.y // self.tile_size)
+        return self.game.tiles[(x, y)]
 
     def step(self, event):
-        x, y = self.tile_xy(event)
-
-        if (x, y) not in self.flags:
-            for tile in self.game.step(x, y):
-                self.canvas.delete(self.covers.pop((tile.x, tile.y)))
-
-                if tile.is_mine:
-                    # Game over!
-                    self.canvas.itemconfigure('covers', stipple='gray25')
+        self.game.step(self.get_event_tile(event))
+        self.update_display()
 
     def toggle_flag(self, event):
-        x, y = self.tile_xy(event)
+        self.game.toggle_flag(self.get_event_tile(event))
+        self.update_display()
 
-        try:
-            self.canvas.delete(self.flags.pop((x, y)))
-        except KeyError:
-            if self.game.tiles[(x, y)].is_covered:
-                sz = self.tile_size
-                rect = self.canvas.create_rectangle
-                self.flags[x, y] = rect((x + 0.2) * sz, (y + 0.1) * sz,
-                                        (x + 0.8) * sz, (y + 0.5) * sz,
-                                        tag='board',
-                                        fill='white')
-
-    def create_board(self):
+    def update_display(self):
         sz = self.tile_size
+        self.canvas.config(width=self.size*sz, height=self.size*sz)
+        self.canvas.delete('all')
 
         for (x, y), tile in self.game.tiles.items():
-            if tile.is_mine:
+            if tile.is_covered:
+                self.canvas.create_rectangle(
+                    x*sz, y*sz, (x+1)*sz, (y+1)*sz,
+                    fill='gray60', tag='covers')
+
+                if tile.is_flagged:
+                    self.canvas.create_rectangle(
+                        (x + 0.2) * sz, (y + 0.1) * sz,
+                        (x + 0.8) * sz, (y + 0.5) * sz,
+                        tag='board',
+                        fill='white')
+            elif tile.is_mine:
                 self.canvas.create_oval((x + 0.2) * sz, (y + 0.2) * sz,
                                         (x + 0.8) * sz, (y + 0.8) * sz,
                                         fill='black',
@@ -145,8 +139,12 @@ class GUI:
                                         anchor='center',
                                         tag='board')
 
+        if self.game.over:
+            self.canvas.itemconfigure('covers', stipple='gray25')
+
     def mainloop(self):
         self.tk.mainloop()
+
 
 gui = GUI()
 gui.mainloop()
