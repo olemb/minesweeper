@@ -23,42 +23,41 @@ class Minesweeper:
                       for x in range(self.size) for y in range(self.size)}
         self._place_mines()
 
-    def _iter_neighbours(self, tile):
+    def _get_neighbours(self, tile):
         (x, y) = (tile.x, tile.y)
-        return (self.tiles[(dx, dy)]
+        return [self.tiles[(dx, dy)]
                 for (dx, dy) in [(x-1, y-1), (x, y-1), (x+1, y-1),
                                  (x-1, y),             (x+1, y),
                                  (x-1, y+1), (x, y+1), (x+1, y+1)]
-                if (dx, dy) in self.tiles)
+                if (dx, dy) in self.tiles]
 
     def _place_mines(self):
         for tile in random.sample(list(self.tiles.values()), self.num_mines):
             tile.is_mine = True
-            for neighbour in self._iter_neighbours(tile):
+            for neighbour in self._get_neighbours(tile):
                 neighbour.count += 1
 
     def _uncover(self, tile):
         if tile.is_covered:
             tile.is_covered = False
-            if tile.is_mine:
-                self.over = True
-            yield tile
 
             if tile.count == 0:
-                for neighbour in self._iter_neighbours(tile):
-                    yield from self._uncover(neighbour)
+                for neighbour in self._get_neighbours(tile):
+                    self._uncover(neighbour)
 
     def step(self, tile):
-        if not tile.is_flagged:
-            return list(self._uncover(tile))
-        else:
-            return []                
+        if not self.over and not tile.is_flagged:
+            if tile.is_mine:
+                self.over = True
+
+            self._uncover(tile)
 
     def toggle_flag(self, tile):
-        if tile.is_flagged:
-            tile.is_flagged = False
-        elif tile.is_covered:
-            tile.is_flagged = True
+        if not self.over:
+            if tile.is_flagged:
+                tile.is_flagged = False
+            elif tile.is_covered:
+                tile.is_flagged = True
 
 
 class GUI:
