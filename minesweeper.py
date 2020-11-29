@@ -36,17 +36,16 @@ class Minesweeper:
                 neighbour.count += 1
 
     def _uncover(self, tile):
-        tile.is_covered = False
-        yield tile
+        if tile.is_covered:
+            tile.is_covered = False
+            yield tile
 
-        if tile.count == 0:
-            for neighbour in self._iter_neighbours(tile):
-                if neighbour.is_covered and not neighbour.is_bomb:
+            if tile.count == 0:
+                for neighbour in self._iter_neighbours(tile):
                     yield from self._uncover(neighbour)
 
     def step(self, x, y):
-        if self.tiles[(x, y)].is_covered:
-            yield from self._uncover(self.tiles[(x, y)])
+        yield from self._uncover(self.tiles[(x, y)])
 
 
 class GUI:
