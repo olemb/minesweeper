@@ -1,6 +1,6 @@
 import random
 from dataclasses import dataclass
-from tkinter import *
+from tkinter import Tk, Frame, Button, Canvas, RAISED, LEFT, BOTTOM, X
 
 
 @dataclass
