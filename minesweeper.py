@@ -32,7 +32,8 @@ class Minesweeper:
                 if (dx, dy) in self.tiles]
 
     def _place_mines(self):
-        for tile in random.sample(list(self.tiles.values()), self.num_mines):
+        tiles = list(self.tiles.values())
+        for tile in random.sample(tiles, self.num_mines):
             tile.is_mine = True
             for neighbour in self._get_neighbours(tile):
                 neighbour.count += 1
@@ -63,8 +64,6 @@ class Minesweeper:
 class GUI:
     def __init__(self, tile_size=40):
         self.tile_size = tile_size
-        self.tiles = {}
-
         self.tk = Tk()
 
         frame = Frame(self.tk, borderwidth=2, relief=RAISED)
@@ -72,9 +71,6 @@ class GUI:
 
         self.canvas = Canvas(frame)
         self.canvas.pack(side=LEFT)
-
-        self.canvas.bind('<Button-1>', self.step)
-        self.canvas.bind('<Button-3>', self.toggle_flag)
 
         frame = Frame(self.tk)
         frame.pack(side=LEFT, fill=Y)
@@ -85,11 +81,12 @@ class GUI:
         button = Button(frame, text='New Game', command=self.new_game)
         button.pack(side=BOTTOM, fill=X)
 
+        self.canvas.bind('<Button-1>', self.step)
+        self.canvas.bind('<Button-3>', self.toggle_flag)
         self.tk.bind('<KeyPress-space>', self.new_game)
 
         self.size = 10
         self.num_mines = 10
-
         self.new_game()
 
     def get_clicked_tile(self, event):
