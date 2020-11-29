@@ -8,18 +8,18 @@ class Tile:
     x: int
     y: int
     is_covered: bool = True
-    is_bomb: bool = False
+    is_mine: bool = False
     count: int = 0
 
 
 class Minesweeper:
-    def __init__(self, size, num_bombs):
+    def __init__(self, size, num_mines):
         self.size = size
-        self.num_bombs = num_bombs
+        self.num_mines = num_mines
 
         self.tiles = {(x, y): Tile(x, y)
                       for x in range(self.size) for y in range(self.size)}
-        self._place_bombs()
+        self._place_mines()
 
     def _iter_neighbours(self, tile):
         (x, y) = (tile.x, tile.y)
@@ -29,9 +29,9 @@ class Minesweeper:
                                  (x-1,y+1), (x,y+1), (x+1,y+1)]
                 if (dx, dy) in self.tiles)
 
-    def _place_bombs(self):
-        for tile in random.sample(list(self.tiles.values()), self.num_bombs):
-            tile.is_bomb = True
+    def _place_mines(self):
+        for tile in random.sample(list(self.tiles.values()), self.num_mines):
+            tile.is_mine = True
             for neighbour in self._iter_neighbours(tile):
                 neighbour.count += 1
 
@@ -72,7 +72,7 @@ class GUI:
         button = Button(self.tk, text='Quit', command=self.tk.quit)
         button.pack(side=BOTTOM, fill=X)
 
-        new_game = lambda event=None: self.new_game(self.size, self.num_bombs)
+        new_game = lambda event=None: self.new_game(self.size, self.num_mines)
         button = Button(self.tk, text='New game', command=new_game)
         button.pack(side=BOTTOM, fill=X)
 
@@ -80,12 +80,12 @@ class GUI:
 
         self.new_game(10, 10)
 
-    def new_game(self, size, num_bombs):
+    def new_game(self, size, num_mines):
         self.covers = {}
         self.flags = {}
 
         self.size = size
-        self.num_bombs = num_bombs
+        self.num_mines = num_mines
 
         self.canvas.delete('covers')
         self.canvas.delete('board')
@@ -93,7 +93,7 @@ class GUI:
         sz = self.tile_size
 
         self.canvas.config(width=size*sz, height=size*sz)
-        self.game = Minesweeper(self.size, self.num_bombs)
+        self.game = Minesweeper(self.size, self.num_mines)
 
         self.create_board()
 
@@ -114,7 +114,7 @@ class GUI:
             for tile in self.game.step(x, y):
                 self.canvas.delete(self.covers.pop((tile.x, tile.y)))
 
-                if tile.is_bomb:
+                if tile.is_mine:
                     # Game over!
                     self.canvas.itemconfigure('covers', stipple='gray25')
 
@@ -136,7 +136,7 @@ class GUI:
         sz = self.tile_size
 
         for (x, y), tile in self.game.tiles.items():
-            if tile.is_bomb:
+            if tile.is_mine:
                 self.canvas.create_oval((x+0.2)*sz, (y+0.2)*sz,
                                         (x+0.8)*sz, (y+0.8)*sz,
                                         fill='black',
