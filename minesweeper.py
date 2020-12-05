@@ -18,9 +18,9 @@ class Minesweeper:
         self.size = size
         self.num_mines = num_mines
         self.over = False
-
         self.tiles = {(x, y): Tile(x, y)
-                      for x in range(self.size) for y in range(self.size)}
+                      for x in range(self.size)
+                      for y in range(self.size)}
         self._place_mines()
 
     def _get_neighbours(self, tile):
