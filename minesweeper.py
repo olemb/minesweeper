@@ -41,7 +41,6 @@ class Minesweeper:
     def _uncover(self, tile):
         if tile.is_covered:
             tile.is_covered = False
-
             if tile.count == 0:
                 for neighbour in self._get_neighbours(tile):
                     self._uncover(neighbour)
@@ -49,7 +48,6 @@ class Minesweeper:
     def step(self, tile):
         if not self.over and not tile.is_flagged:
             self._uncover(tile)
-
             if tile.is_mine:
                 self.over = True
 
