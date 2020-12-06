@@ -17,7 +17,7 @@ class Minesweeper:
     def __init__(self, size, num_mines):
         self.size = size
         self.num_mines = num_mines
-        self.over = False
+        self.game_over = False
         self.tiles = {(x, y): Tile(x, y)
                       for x in range(self.size)
                       for y in range(self.size)}
@@ -46,13 +46,13 @@ class Minesweeper:
                     self._uncover(neighbour)
 
     def step(self, tile):
-        if not self.over and not tile.is_flagged:
+        if not self.game_over and not tile.is_flagged:
             self._uncover(tile)
             if tile.is_mine:
-                self.over = True
+                self.game_over = True
 
     def toggle_flag(self, tile):
-        if not self.over:
+        if not self.game_over:
             if tile.is_flagged:
                 tile.is_flagged = False
             elif tile.is_covered:
@@ -129,7 +129,7 @@ class GUI:
                                              (x + 0.8) * sz, (y + 0.5) * sz,
                                              fill='white', tag='board')
 
-        if self.game.over:
+        if self.game.game_over:
             self.canvas.itemconfigure('covers', stipple='gray25')
 
     def mainloop(self):
