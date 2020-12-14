@@ -110,25 +110,40 @@ class GUI:
 
         for (x, y), tile in self.game.tiles.items():
             if tile.is_mine:
-                self.canvas.create_oval((x + 0.2) * sz, (y + 0.2) * sz,
-                                        (x + 0.8) * sz, (y + 0.8) * sz,
-                                        fill='black', tag='board')
+                self.canvas.create_oval(
+                    (x + 0.2) * sz,
+                    (y + 0.2) * sz,
+                    (x + 0.8) * sz,
+                    (y + 0.8) * sz,
+                    fill='black',
+                    tag='board',
+                )
             elif tile.count > 0:
-                self.canvas.create_text((x + 0.5) * sz, (y + 0.5) * sz,
-                                        anchor='center',
-                                        text=tile.count,
-                                        tag='board')
-
+                self.canvas.create_text(
+                    (x + 0.5) * sz,
+                    (y + 0.5) * sz,
+                    anchor='center',
+                    text=tile.count,
+                    tag='board',
+                )
             if tile.is_covered:
-                self.canvas.create_rectangle(x * sz, y * sz,
-                                             (x + 1) * sz, (y + 1) * sz,
-                                             fill='gray60', tag='covers')
-
+                self.canvas.create_rectangle(
+                    x * sz,
+                    y * sz,
+                    (x + 1) * sz,
+                    (y + 1) * sz,
+                    fill='gray60',
+                    tag='covers',
+                )
             if tile.is_flagged:
-                self.canvas.create_rectangle((x + 0.2) * sz, (y + 0.1) * sz,
-                                             (x + 0.8) * sz, (y + 0.5) * sz,
-                                             fill='white', tag='board')
-
+                self.canvas.create_rectangle(
+                    (x + 0.2) * sz,
+                    (y + 0.1) * sz,
+                    (x + 0.8) * sz,
+                    (y + 0.5) * sz,
+                    fill='white',
+                    tag='board',
+                )
         if self.game.game_over:
             self.canvas.itemconfigure('covers', stipple='gray25')
 
