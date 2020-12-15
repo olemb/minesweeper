@@ -132,17 +132,31 @@ class GUI:
                     y * sz,
                     (x + 1) * sz,
                     (y + 1) * sz,
-                    fill='gray60',
+                    fill='#448844',
                     tag='covers',
                 )
             if tile.is_flagged:
                 self.canvas.create_rectangle(
                     (x + 0.2) * sz,
                     (y + 0.1) * sz,
+                    (x + 0.3) * sz,
+                    (y + 0.9) * sz,
+                    fill='#cc8833',
+                    tag='flags',
+                )
+                self.canvas.create_polygon(
+                    # Top left:
+                    (x + 0.3) * sz,
+                    (y + 0.15) * sz,
+                    # Tip:
                     (x + 0.8) * sz,
-                    (y + 0.5) * sz,
-                    fill='white',
-                    tag='board',
+                    (y + 0.35) * sz,
+                    # Bottom left:
+                    (x + 0.3) * sz,
+                    (y + 0.65) * sz,
+                    fill='red',
+                    outline='black',
+                    tag='flags',
                 )
         if self.game.game_over:
             self.canvas.itemconfigure('covers', stipple='gray25')
