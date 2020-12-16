@@ -1,6 +1,6 @@
 import random
 from dataclasses import dataclass
-from tkinter import Tk, Frame, Button, Canvas, RAISED, LEFT, BOTTOM, X, Y
+from tkinter import Tk, Frame, Button, Canvas, RAISED, LEFT, BOTTOM, TOP, X, Y
 
 
 @dataclass
@@ -17,6 +17,7 @@ class Minesweeper:
     def __init__(self, size, num_mines):
         self.size = size
         self.num_mines = num_mines
+        self.flags_left = num_mines
         self.game_over = False
         self.tiles = {(x, y): Tile(x, y)
                       for x in range(self.size)
@@ -55,8 +56,11 @@ class Minesweeper:
         if not self.game_over:
             if tile.is_flagged:
                 tile.is_flagged = False
+                self.flags_left += 1
             elif tile.is_covered:
-                tile.is_flagged = True
+                if self.flags_left:
+                    tile.is_flagged = True
+                    self.flags_left -= 1
 
 
 class GUI:
@@ -72,6 +76,9 @@ class GUI:
 
         frame = Frame(self.tk)
         frame.pack(side=LEFT, fill=Y)
+
+        self.status_canvas = Canvas(frame)
+        self.status_canvas.pack(side=TOP)
 
         button = Button(frame, text='Quit', command=self.tk.quit)
         button.pack(side=BOTTOM, fill=X)
@@ -102,6 +109,31 @@ class GUI:
     def toggle_flag(self, event):
         self.game.toggle_flag(self.get_clicked_tile(event))
         self.update_display()
+
+    def draw_flag(self, canvas, x, y):
+        sz = self.tile_size
+        canvas.create_rectangle(
+            (x + 0.2) * sz,
+            (y + 0.1) * sz,
+            (x + 0.3) * sz,
+            (y + 0.9) * sz,
+            fill='#cc8833',
+            tag='flags',
+        )
+        canvas.create_polygon(
+            # Top left:
+            (x + 0.3) * sz,
+            (y + 0.15) * sz,
+            # Tip:
+            (x + 0.8) * sz,
+            (y + 0.35) * sz,
+            # Bottom left:
+            (x + 0.3) * sz,
+            (y + 0.65) * sz,
+            fill='red',
+            outline='black',
+            tag='flags',
+        )
 
     def update_display(self):
         sz = self.tile_size
@@ -136,28 +168,19 @@ class GUI:
                     tag='covers',
                 )
             if tile.is_flagged:
-                self.canvas.create_rectangle(
-                    (x + 0.2) * sz,
-                    (y + 0.1) * sz,
-                    (x + 0.3) * sz,
-                    (y + 0.9) * sz,
-                    fill='#cc8833',
-                    tag='flags',
-                )
-                self.canvas.create_polygon(
-                    # Top left:
-                    (x + 0.3) * sz,
-                    (y + 0.15) * sz,
-                    # Tip:
-                    (x + 0.8) * sz,
-                    (y + 0.35) * sz,
-                    # Bottom left:
-                    (x + 0.3) * sz,
-                    (y + 0.65) * sz,
-                    fill='red',
-                    outline='black',
-                    tag='flags',
-                )
+                self.draw_flag(self.canvas, x, y)
+
+        self.status_canvas.config(width=self.tile_size*2)
+        self.status_canvas.delete('all')
+        self.draw_flag(self.status_canvas, 0, 0)
+        self.status_canvas.create_text(
+            (1.2) * sz,
+            (0.5) * sz,
+            anchor='center',
+            text=self.game.flags_left,
+            tag='board',
+        )
+
         if self.game.game_over:
             self.canvas.itemconfigure('covers', stipple='gray25')
 
