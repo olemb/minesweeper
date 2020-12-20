@@ -47,20 +47,24 @@ class Minesweeper:
                     self._uncover(neighbour)
 
     def step(self, tile):
-        if not self.game_over and not tile.is_flagged:
+        if self.game_over:
+            return
+
+        if not tile.is_flagged:
             self._uncover(tile)
             if tile.is_mine:
                 self.game_over = True
 
     def toggle_flag(self, tile):
-        if not self.game_over:
-            if tile.is_flagged:
-                tile.is_flagged = False
-                self.flags_left += 1
-            elif tile.is_covered:
-                if self.flags_left:
-                    tile.is_flagged = True
-                    self.flags_left -= 1
+        if self.game_over:
+            return
+
+        if tile.is_flagged:
+            tile.is_flagged = False
+            self.flags_left += 1
+        elif tile.is_covered and self.flags_left:
+            tile.is_flagged = True
+            self.flags_left -= 1
 
 
 class GUI:
